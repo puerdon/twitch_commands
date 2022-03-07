@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <style type="text/css">
+    #map {
+        height: 800px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyColo8pHn7LzE-pUD21tU7v9HxcwiRmN7g",
+        authDomain: "twitch-user-info.firebaseapp.com",
+        databaseURL: "https://twitch-user-info-default-rtdb.firebaseio.com",
+        projectId: "twitch-user-info",
+        storageBucket: "twitch-user-info.appspot.com",
+        messagingSenderId: "1050988496171",
+        appId: "1:1050988496171:web:ac45746118f5e202b4316e"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    let database = firebase.database();
+
+    
+    // Initialize Map
+    let mapOptions = {
+        center: [22.595153, 120.306923],
+        zoom: 2.5,
+        zoomControl: false
+    }
+    let map = L.map('map', mapOptions);
+
+    // render base map
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '<a href="https://www.openstreetmap.org/copyright/en">© OpenStreetMap contributors</a>'
+    }).addTo(map);
+
+
+    // read
+    database.ref('users/').on('value', (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+
+        // 重新繪製marker
+        for (let user in data) {
+        	console.log(user);
+        	console.log(data[user]);
+        	let location = data[user].location;
+        	L.marker({lat: location.latitude, lon: location.longitude}).addTo(map);
+        	
+        }
+
+    });
+
+
+    // write
+    function write(userId, country, city, longitude, latitude) {
+        database.ref('users/' + userId).set({
+            username: userId,
+            country: country,
+            city: city,
+            location: {
+            	longitude: longitude,
+            	latitude: latitude
+            }
+        });
+    }
+
+
+
+
+    
+    
+    
+    
+    </script>
+</body>
+
+</html>
